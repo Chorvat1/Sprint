@@ -56,15 +56,17 @@ public class TaskManager {
     }
 
     // Метод для обновления существующего эпика
-    public void updateEpic(Epic epic) {
-        if (epics.containsKey(epic.getId())) {
-            Epic epicNew = epics.get(epic.getId());
-            // в этой строчке надо в epicNew добавить значение name и description
-            epicNew.setName(epic.getName());
-            epicNew.setDescription(epic.getDescription());
-        } else {
-            System.out.println("Такого Эпика нет ");
+    public Epic updateEpic(Epic epic) {
+        Integer epicID = epic.getId();
+        if (epicID == null || !epics.containsKey(epicID)) {
+            return null;
         }
+        // обновляем название и описание эпика
+        Epic existingEpic = epics.get(epicID);
+        existingEpic.setTitle(epic.getTitle());
+        existingEpic.setDescription(epic.getDescription());
+        // статус и список подзадач остаются без изменений
+        return existingEpic;
     }
 
     // Метод для обновления существующей подзадачи
@@ -170,41 +172,37 @@ public class TaskManager {
 
     // Вспомогательный private метод для контроля статуса эпика при удалении или изменении подзадач
     private void updateEpicStatus(Epic epic) {
-        if (epics.containsKey(epic.getId())) {
-            if (epic.getSubtaskList().isEmpty()) {
-                epic.setStatus(Status.NEW);
-            } else {
-                int allIsDoneCount = 0; // Счетчик завершенных подзадач
-                int allIsInNewCount = 0; // Счетчик новых подзадач
-                // Получаем список подзадач, связанных с эпиком
-                ArrayList<Subtask> list = epic.getSubtaskList();
+        // Получаем список подзадач, связанных с эпиком
+        ArrayList<Subtask> list = epic.getSubtaskList();
+        if (list.isEmpty()) {
+            epic.setStatus(Status.NEW); // Если у эпика нет подзадач, статус NEW
+            return;
+        }
+        int allIsDoneCount = 0; // Счетчик завершенных подзадач
+        int allIsInNewCount = 0; // Счетчик новых подзадач
 
-                // Перебираем все подзадачи, чтобы подсчитать их статусы
-                for (Subtask subtask : list) {
-                    // Если подзадача завершена, инкрементируем счетчик завершенных подзадач
-                    if (subtask.getStatus() == Status.DONE) {
-                        allIsDoneCount++;
-                    }
-                    // Если подзадача новая, инкрементируем счетчик новых подзадач
-                    if (subtask.getStatus() == Status.NEW) {
-                        allIsInNewCount++;
-                    }
-                }
-
-                // Обновляем статус эпика в зависимости от количества завершенных и новых подзадач
-                if (allIsDoneCount == list.size()) {
-                    // Если все подзадачи завершены, устанавливаем статус эпика как DONE
-                    epic.setStatus(Status.DONE);
-                } else if (allIsInNewCount == list.size()) {
-                    // Если все подзадачи новые, устанавливаем статус эпика как NEW
-                    epic.setStatus(Status.NEW);
-                } else {
-                    // В противном случае, если есть подзадачи в процессе выполнения, устанавливаем статус как IN_PROGRESS
-                    epic.setStatus(Status.IN_PROGRESS);
-                }
+        // Перебираем все подзадачи, чтобы подсчитать их статусы
+        for (Subtask subtask : list) {
+            // Если подзадача завершена, инкрементируем счетчик завершенных подзадач
+            if (subtask.getStatus() == Status.DONE) {
+                allIsDoneCount++;
             }
+            // Если подзадача новая, инкрементируем счетчик новых подзадач
+            if (subtask.getStatus() == Status.NEW) {
+                allIsInNewCount++;
+            }
+        }
+
+        // Обновляем статус эпика в зависимости от количества завершенных и новых подзадач
+        if (allIsDoneCount == list.size()) {
+            // Если все подзадачи завершены, устанавливаем статус эпика как DONE
+            epic.setStatus(Status.DONE);
+        } else if (allIsInNewCount == list.size()) {
+            // Если все подзадачи новые, устанавливаем статус эпика как NEW
+            epic.setStatus(Status.NEW);
         } else {
-            System.out.println("Такого эпика нет");
+            // В противном случае, если есть подзадачи в процессе выполнения, устанавливаем статус как IN_PROGRESS
+            epic.setStatus(Status.IN_PROGRESS);
         }
     }
 }

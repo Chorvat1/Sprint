@@ -16,6 +16,16 @@ public class Epic extends Task {
         super(id, name, description, status);
     }
 
+    // Метод для получения названия эпика
+    public String getTitle() {
+        return getName(); // Здесь мы используем getName() для получения названия
+    }
+
+    // Метод для установки нового названия эпика
+    public void setTitle(String title) {
+        setName(title); // Используем метод setName из класса Task
+    }
+
     // Метод для добавления подзадачи к списку подзадач
     public void addSubtask(Subtask subtask) {
         subtaskList.add(subtask);
